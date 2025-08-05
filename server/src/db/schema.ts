@@ -63,9 +63,20 @@ export const transactionItemsTable = pgTable('transaction_items', {
   created_at: timestamp('created_at').defaultNow().notNull(),
 });
 
+// Medicine usage table (for tracking medicine consumption)
+export const medicineUsageTable = pgTable('medicine_usage', {
+  id: serial('id').primaryKey(),
+  medicine_id: integer('medicine_id').notNull().references(() => medicinesTable.id),
+  quantity_used: integer('quantity_used').notNull(),
+  usage_date: timestamp('usage_date').defaultNow().notNull(),
+  notes: text('notes'),
+  created_at: timestamp('created_at').defaultNow().notNull(),
+});
+
 // Relations
 export const medicinesRelations = relations(medicinesTable, ({ many }) => ({
   transactionItems: many(transactionItemsTable),
+  usageRecords: many(medicineUsageTable),
 }));
 
 export const patientsRelations = relations(patientsTable, ({ many }) => ({
@@ -91,6 +102,13 @@ export const transactionItemsRelations = relations(transactionItemsTable, ({ one
   }),
 }));
 
+export const medicineUsageRelations = relations(medicineUsageTable, ({ one }) => ({
+  medicine: one(medicinesTable, {
+    fields: [medicineUsageTable.medicine_id],
+    references: [medicinesTable.id],
+  }),
+}));
+
 // TypeScript types for the table schemas
 export type Medicine = typeof medicinesTable.$inferSelect;
 export type NewMedicine = typeof medicinesTable.$inferInsert;
@@ -104,10 +122,14 @@ export type NewTransaction = typeof transactionsTable.$inferInsert;
 export type TransactionItem = typeof transactionItemsTable.$inferSelect;
 export type NewTransactionItem = typeof transactionItemsTable.$inferInsert;
 
+export type MedicineUsage = typeof medicineUsageTable.$inferSelect;
+export type NewMedicineUsage = typeof medicineUsageTable.$inferInsert;
+
 // Export all tables for relation queries
 export const tables = {
   medicines: medicinesTable,
   patients: patientsTable,
   transactions: transactionsTable,
   transactionItems: transactionItemsTable,
+  medicineUsage: medicineUsageTable,
 };

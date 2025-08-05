@@ -66,6 +66,18 @@ export const transactionItemSchema = z.object({
 
 export type TransactionItem = z.infer<typeof transactionItemSchema>;
 
+// Medicine usage schema
+export const medicineUsageSchema = z.object({
+  id: z.number(),
+  medicine_id: z.number(),
+  quantity_used: z.number().int().positive(),
+  usage_date: z.coerce.date(),
+  notes: z.string().nullable(),
+  created_at: z.coerce.date(),
+});
+
+export type MedicineUsage = z.infer<typeof medicineUsageSchema>;
+
 // Input schemas for creating records
 export const createMedicineInputSchema = z.object({
   name: z.string().min(1),
@@ -105,6 +117,14 @@ export const createTransactionInputSchema = z.object({
 });
 
 export type CreateTransactionInput = z.infer<typeof createTransactionInputSchema>;
+
+export const createMedicineUsageInputSchema = z.object({
+  medicine_id: z.number(),
+  quantity_used: z.number().int().positive(),
+  notes: z.string().nullable().optional(),
+});
+
+export type CreateMedicineUsageInput = z.infer<typeof createMedicineUsageInputSchema>;
 
 // Update schemas
 export const updateMedicineInputSchema = z.object({

@@ -16,7 +16,8 @@ import {
   createTransactionInputSchema,
   updateTransactionStatusInputSchema,
   getTransactionByIdInputSchema,
-  getLowStockMedicinesInputSchema
+  getLowStockMedicinesInputSchema,
+  createMedicineUsageInputSchema
 } from './schema';
 
 // Import handlers
@@ -37,6 +38,8 @@ import { getLowStockMedicines } from './handlers/get_low_stock_medicines';
 import { generateStockReport } from './handlers/generate_stock_report';
 import { generatePatientReport } from './handlers/generate_patient_report';
 import { generateReceipt } from './handlers/generate_receipt';
+import { createMedicineUsage } from './handlers/create_medicine_usage';
+import { getMedicineUsage } from './handlers/get_medicine_usage';
 
 const t = initTRPC.create({
   transformer: superjson,
@@ -106,6 +109,14 @@ const appRouter = router({
   getLowStockMedicines: publicProcedure
     .input(getLowStockMedicinesInputSchema)
     .query(({ input }) => getLowStockMedicines(input)),
+
+  // Medicine Usage routes
+  createMedicineUsage: publicProcedure
+    .input(createMedicineUsageInputSchema)
+    .mutation(({ input }) => createMedicineUsage(input)),
+
+  getMedicineUsage: publicProcedure
+    .query(() => getMedicineUsage()),
 
   // Reporting routes
   generateStockReport: publicProcedure

@@ -1,9 +1,22 @@
 
+import { db } from '../db';
+import { medicinesTable } from '../db/schema';
 import { type Medicine } from '../schema';
 
-export async function getMedicines(): Promise<Medicine[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all medicines from the database with current stock information.
-    // Should include filtering by category, stock status, and expiry date.
-    return [];
-}
+export const getMedicines = async (): Promise<Medicine[]> => {
+  try {
+    const results = await db.select()
+      .from(medicinesTable)
+      .execute();
+
+    // Convert numeric and date fields to match schema expectations
+    return results.map(medicine => ({
+      ...medicine,
+      price: parseFloat(medicine.price),
+      expiry_date: new Date(medicine.expiry_date)
+    }));
+  } catch (error) {
+    console.error('Failed to fetch medicines:', error);
+    throw error;
+  }
+};

@@ -1,19 +1,33 @@
 
+import { db } from '../db';
+import { transactionsTable } from '../db/schema';
 import { type UpdateTransactionStatusInput, type Transaction } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function updateTransactionStatus(input: UpdateTransactionStatusInput): Promise<Transaction> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is updating transaction payment status.
-    // Should handle payment confirmation and cancellation logic.
-    return Promise.resolve({
-        id: input.id,
-        transaction_code: 'TXN000001',
-        patient_id: 1,
-        transaction_date: new Date(),
-        total_amount: 0,
+export const updateTransactionStatus = async (input: UpdateTransactionStatusInput): Promise<Transaction> => {
+  try {
+    // Update transaction status
+    const result = await db.update(transactionsTable)
+      .set({
         payment_status: input.payment_status,
-        notes: null,
-        created_at: new Date(),
         updated_at: new Date()
-    } as Transaction);
-}
+      })
+      .where(eq(transactionsTable.id, input.id))
+      .returning()
+      .execute();
+
+    if (result.length === 0) {
+      throw new Error(`Transaction with id ${input.id} not found`);
+    }
+
+    // Convert numeric fields back to numbers before returning
+    const transaction = result[0];
+    return {
+      ...transaction,
+      total_amount: parseFloat(transaction.total_amount)
+    };
+  } catch (error) {
+    console.error('Transaction status update failed:', error);
+    throw error;
+  }
+};

@@ -1,9 +1,21 @@
 
+import { db } from '../db';
+import { transactionsTable } from '../db/schema';
 import { type Transaction } from '../schema';
 
-export async function getTransactions(): Promise<Transaction[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all transactions with patient and item details.
-    // Should support filtering by date range, patient, and payment status.
-    return [];
-}
+export const getTransactions = async (): Promise<Transaction[]> => {
+  try {
+    const results = await db.select()
+      .from(transactionsTable)
+      .execute();
+
+    // Convert numeric fields back to numbers
+    return results.map(transaction => ({
+      ...transaction,
+      total_amount: parseFloat(transaction.total_amount)
+    }));
+  } catch (error) {
+    console.error('Get transactions failed:', error);
+    throw error;
+  }
+};
